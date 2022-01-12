@@ -64,18 +64,35 @@ class AnimesController
                 $repertoire = "public/images/";
                 $image = ajoutImage($_FILES['image'], $repertoire);
             }
+
             $genre = (int)Securite::secureHTML($_POST['genre_id']);
             
-            $studiosManager = new StudiosManager();
-            $studioNb = (int)($studiosManager->countStudios())[0]['nb'];
-           
-            $idAnime = $this->animesManager->createAnime($nom, $description, $image, $genre);
+            $StudiosManager = new StudiosManager;
+            $studioNb = ($StudiosManager->countStudios());
+            // var_dump($studioNb[6]['studio_id']);
+            //  echo(count($studioNb));
+                   
+                for($nb = 0;  $nb < count($studioNb); $nb++) {
 
-            for($nb = $studioNb; $nb >= 0; $nb--) {
-                if(!empty($_POST['studio-'.$nb]))
-                $studiosManager->addStudioAnime($idAnime, $nb);
-            } 
-           
+                    $studios[$studioNb[$nb]['studio_id']] = !empty($_POST['studio-'.$studioNb[$nb]['studio_id']]);
+                    
+                }
+
+                $idAnime = $this->animesManager->createAnime($nom, $description, $image, $genre);
+                foreach ($studios as $key => $studio) {
+                    // var_dump("studio nb ".$studioNb);
+                     //studio coché et non présent en BD
+                    // echo ("key = ".$studio[$key]);
+                     if($studios[$key] && !$StudiosManager->verificationExisteAnimeStudio($idAnime,$key)){
+                      //   var_dump("condition add");
+                         $StudiosManager->addStudioAnime($idAnime,$key);
+                     }
+     
+                     //studio non coché et présent en BD
+                     if(!$studios[$key] && $StudiosManager->verificationExisteAnimeStudio($idAnime,$key)){
+                         $StudiosManager->deleteDbStudioAnime($idAnime,$key);
+                     }
+                 }
 
             $_SESSION['alert'] = [
                 "message" => "L'anime est crée avec l'id :".$idAnime,

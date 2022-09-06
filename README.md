@@ -36,8 +36,5 @@ http://localhost:3000
 
 ### Admin
 - Dans votre navigateur utilisez le lien que vous avez modifier dans rontend/src/containers/Site/Application/Application.js [(http://localhost/projets/blog_animes)/backend/back/login ] pour accéder au backend et au côté admin
-- login : admin
-- password : admin09
-
 
 ### Happy ! Bonne utilisation 🙂
